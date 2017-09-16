@@ -14,10 +14,11 @@ import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 
@@ -60,11 +61,11 @@ public class TurtleSuckCommand implements ITurtleCommand
         {
             // Take from inventory of thing in front
             ItemStack stack = InventoryUtil.takeItems( m_quantity, inventory );
-            if( !stack.isEmpty() )
+            if( stack != null )
             {
                 // Try to place into the turtle
                 ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
-                if( !remainder.isEmpty() )
+                if( remainder != null )
                 {
                     // Put the remainder back in the inventory
                     InventoryUtil.storeItems( remainder, inventory );
@@ -105,7 +106,7 @@ public class TurtleSuckCommand implements ITurtleCommand
                         ItemStack stack = entityItem.getEntityItem().copy();
                         ItemStack storeStack;
                         ItemStack leaveStack;
-                        if( stack.getCount() > m_quantity )
+                        if( stack.stackSize > m_quantity )
                         {
                             storeStack = stack.splitStack( m_quantity );
                             leaveStack = stack;
@@ -113,27 +114,27 @@ public class TurtleSuckCommand implements ITurtleCommand
                         else
                         {
                             storeStack = stack;
-                            leaveStack = ItemStack.EMPTY;
+                            leaveStack = null;
                         }
                         ItemStack remainder = InventoryUtil.storeItems( storeStack, turtle.getItemHandler(), turtle.getSelectedSlot() );
                         if( remainder != storeStack )
                         {
                             storedItems = true;
-                            if( remainder.isEmpty() && leaveStack.isEmpty() )
+                            if( remainder == null && leaveStack == null )
                             {
                                 entityItem.setDead();
                             }
-                            else if( remainder.isEmpty() )
+                            else if( remainder == null )
                             {
                                 entityItem.setEntityItemStack( leaveStack );
                             }
-                            else if( leaveStack.isEmpty() )
+                            else if( leaveStack == null )
                             {
                                 entityItem.setEntityItemStack( remainder );
                             }
                             else
                             {
-                                leaveStack.grow( remainder.getCount() );
+                                leaveStack.stackSize += remainder.stackSize;
                                 entityItem.setEntityItemStack( leaveStack );
                             }
                             break;

@@ -138,47 +138,45 @@ public class ContainerTurtle extends Container
         TileTurtle turtle = ((TurtleBrain)m_turtle).getOwner();
         if( turtle != null )
         {
-            return turtle.isUsableByPlayer( player );
+            return turtle.isUseableByPlayer( player );
         }
         return false;
     }
 
-    @Nonnull
     protected ItemStack tryItemMerge( EntityPlayer player, int slotNum, int firstSlot, int lastSlot, boolean reverse )
     {
         Slot slot = inventorySlots.get( slotNum );
-        ItemStack originalStack = ItemStack.EMPTY;
+        ItemStack originalStack = null;
         if( slot != null && slot.getHasStack() )
         {
             ItemStack clickedStack = slot.getStack();
             originalStack = clickedStack.copy();
             if( !mergeItemStack( clickedStack, firstSlot, lastSlot, reverse ) )
             {
-                return ItemStack.EMPTY;
+                return null;
             }
 
-            if( clickedStack.isEmpty() )
+            if( clickedStack.stackSize == 0 )
             {
-                slot.putStack( ItemStack.EMPTY );
+                slot.putStack( null );
             }
             else
             {
                 slot.onSlotChanged();
             }
 
-            if( clickedStack.getCount() != originalStack.getCount() )
+            if( clickedStack.stackSize != originalStack.stackSize )
             {
-                slot.onTake( player, clickedStack );
+                slot.onPickupFromSlot( player, clickedStack );
             }
             else
             {
-                return ItemStack.EMPTY;
+                return null;
             }
         }
         return originalStack;
     }
 
-    @Nonnull
     @Override
     public ItemStack transferStackInSlot( EntityPlayer player, int slotNum )
     {
@@ -190,7 +188,7 @@ public class ContainerTurtle extends Container
         {
             return tryItemMerge( player, slotNum, 0, 16, false );
         }
-        return ItemStack.EMPTY;
+        return null;
     }
 
     @Nullable

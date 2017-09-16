@@ -130,7 +130,6 @@ public class TurtleModem implements ITurtleUpgrade
         return TurtleUpgradeType.Peripheral;
     }
     
-    @Nonnull
     @Override
     public ItemStack getCraftingItem()
     {
@@ -154,7 +153,7 @@ public class TurtleModem implements ITurtleUpgrade
     @Override
     public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull EnumFacing dir )
     {
-        return TurtleCommandResult.failure();
+        return null;
     }
 
     @SideOnly( Side.CLIENT )

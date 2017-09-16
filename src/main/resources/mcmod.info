@@ -1,6 +1,6 @@
 [
     {
-        "modid" : "computercraft",
+        "modid" : "ComputerCraft",
         "name" : "ComputerCraft",
         "version" : "${version}",
         "mcversion" : "${mcversion}",

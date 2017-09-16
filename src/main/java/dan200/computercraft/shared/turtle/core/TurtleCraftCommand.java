@@ -41,7 +41,7 @@ public class TurtleCraftCommand implements ITurtleCommand
             for( ItemStack stack : results )
             {
                 ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
-                if( !remainder.isEmpty() )
+                if( remainder != null )
                 {
                     // Drop the remainder
                     BlockPos position = turtle.getPosition();

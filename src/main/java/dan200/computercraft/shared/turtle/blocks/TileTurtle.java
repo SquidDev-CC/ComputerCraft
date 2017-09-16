@@ -29,7 +29,10 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.*;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.ITickable;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -65,8 +68,8 @@ public class TileTurtle extends TileComputerBase
         MOVED
     }
 
-    private NonNullList<ItemStack> m_inventory;
-    private NonNullList<ItemStack> m_previousInventory;
+    private ItemStack[] m_inventory;
+    private ItemStack[] m_previousInventory;
     private final IItemHandlerModifiable m_itemHandler = new InvWrapper( this );
     private boolean m_inventoryChanged;
     private TurtleBrain m_brain;
@@ -74,8 +77,8 @@ public class TileTurtle extends TileComputerBase
 
     public TileTurtle()
     {
-        m_inventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
-        m_previousInventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
+        m_inventory = new ItemStack[ INVENTORY_SIZE ];
+        m_previousInventory =  new ItemStack[ getSizeInventory() ];
         m_inventoryChanged = false;
         m_brain = createBrain();
         m_moveState = MoveState.NOT_MOVED;
@@ -94,7 +97,7 @@ public class TileTurtle extends TileComputerBase
     protected final ServerComputer createComputer( int instanceID, int id, int termWidth, int termHeight )
     {
         ServerComputer computer = new ServerComputer(
-            getWorld(),
+            worldObj,
             id,
             m_label,
             instanceID,
@@ -123,15 +126,15 @@ public class TileTurtle extends TileComputerBase
             super.destroy();
 
             // Drop contents
-            if( !getWorld().isRemote )
+            if( !worldObj.isRemote )
             {
                 int size = getSizeInventory();
                 for( int i=0; i<size; ++i )
                 {
                     ItemStack stack = getStackInSlot( i );
-                    if( !stack.isEmpty() )
+                    if( stack != null )
                     {
-                        WorldUtil.dropItemStack( stack, getWorld(), getPos() );
+                        WorldUtil.dropItemStack( stack, worldObj, getPos() );
                     }
                 }
             }
@@ -141,7 +144,7 @@ public class TileTurtle extends TileComputerBase
             // Just turn off any redstone we had on
             for( EnumFacing dir : EnumFacing.VALUES )
             {
-                RedstoneUtil.propagateRedstoneOutput( getWorld(), getPos(), dir );
+                RedstoneUtil.propagateRedstoneOutput( worldObj, getPos(), dir );
             }
         }
     }
@@ -179,12 +182,12 @@ public class TileTurtle extends TileComputerBase
 
         // Apply dye
         ItemStack currentItem = player.getHeldItem( EnumHand.MAIN_HAND );
-        if( !currentItem.isEmpty() )
+        if( currentItem != null )
         {
             if( currentItem.getItem() == Items.DYE )
             {
                 // Dye to change turtle colour
-                if( !getWorld().isRemote )
+                if( !worldObj.isRemote )
                 {
                     int dye = (currentItem.getItemDamage() & 0xf);
                     if( m_brain.getDyeColour() != dye )
@@ -192,7 +195,7 @@ public class TileTurtle extends TileComputerBase
                         m_brain.setDyeColour( dye );
                         if( !player.capabilities.isCreativeMode )
                         {
-                            currentItem.shrink( 1 );
+                            currentItem.stackSize--;
                         }
                     }
                 }
@@ -201,7 +204,7 @@ public class TileTurtle extends TileComputerBase
             else if( currentItem.getItem() == Items.WATER_BUCKET && m_brain.getColour() != -1 )
             {
                 // Water to remove turtle colour
-                if( !getWorld().isRemote )
+                if( !worldObj.isRemote )
                 {
                     if( m_brain.getColour() != -1 )
                     {
@@ -276,7 +279,7 @@ public class TileTurtle extends TileComputerBase
         m_brain.update();
         synchronized( m_inventory )
         {
-            if( !getWorld().isRemote && m_inventoryChanged )
+            if( !worldObj.isRemote && m_inventoryChanged )
             {
                 IComputer computer = getComputer();
                 if( computer != null )
@@ -287,7 +290,7 @@ public class TileTurtle extends TileComputerBase
                 m_inventoryChanged = false;
                 for( int n=0; n<getSizeInventory(); ++n )
                 {
-                    m_previousInventory.set( n, InventoryUtil.copyItem( getStackInSlot( n ) ) );
+                    m_previousInventory[n] = InventoryUtil.copyItem( getStackInSlot( n ) );
                 }
             }
         }
@@ -335,16 +338,16 @@ public class TileTurtle extends TileComputerBase
 
         // Read inventory
         NBTTagList nbttaglist = nbttagcompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
-        m_inventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
-        m_previousInventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
+        m_inventory = new ItemStack[ INVENTORY_SIZE ];
+        m_previousInventory = new ItemStack[ getSizeInventory() ];
         for( int i=0; i<nbttaglist.tagCount(); ++i )
         {
             NBTTagCompound itemtag = nbttaglist.getCompoundTagAt( i );
             int slot = itemtag.getByte("Slot") & 0xff;
             if( slot >= 0 && slot < getSizeInventory() )
             {
-                m_inventory.set( slot, new ItemStack( itemtag ) );
-                m_previousInventory.set( slot, InventoryUtil.copyItem( m_inventory.get( slot ) ) );
+                m_inventory[slot] = ItemStack.loadItemStackFromNBT( itemtag );
+                m_previousInventory[slot] = InventoryUtil.copyItem( m_inventory[slot] );
             }
         }
 
@@ -362,11 +365,11 @@ public class TileTurtle extends TileComputerBase
         NBTTagList nbttaglist = new NBTTagList();
         for( int i=0; i<INVENTORY_SIZE; ++i )
         {
-            if( !m_inventory.get(i).isEmpty() )
+            if( m_inventory[i] != null )
             {
                 NBTTagCompound itemtag = new NBTTagCompound();
                 itemtag.setByte( "Slot", (byte)i );
-                m_inventory.get(i).writeToNBT(itemtag);
+                m_inventory[i].writeToNBT(itemtag);
                 nbttaglist.appendTag(itemtag);
             }
         }
@@ -457,61 +460,48 @@ public class TileTurtle extends TileComputerBase
     }
 
     @Override
-    public boolean isEmpty()
-    {
-        for( ItemStack stack : m_inventory )
-        {
-            if( !stack.isEmpty() ) return false;
-        }
-        return true;
-    }
-
-    @Nonnull
-    @Override
     public ItemStack getStackInSlot( int slot )
     {
         if( slot >= 0 && slot < INVENTORY_SIZE )
         {
             synchronized( m_inventory )
             {
-                return m_inventory.get( slot );
+                return m_inventory[ slot ];
             }
         }
-        return ItemStack.EMPTY;
+        return null;
     }
 
-    @Nonnull
     @Override
     public ItemStack removeStackFromSlot( int slot )
     {
         synchronized( m_inventory )
         {
             ItemStack result = getStackInSlot( slot );
-            setInventorySlotContents( slot, ItemStack.EMPTY );
+            setInventorySlotContents( slot, null );
             return result;
         }
     }
 
-    @Nonnull
     @Override
     public ItemStack decrStackSize( int slot, int count )
     {
         if( count == 0 )
         {
-            return ItemStack.EMPTY;
+            return null;
         }
 
         synchronized( m_inventory )
         {
             ItemStack stack = getStackInSlot( slot );
-            if( stack.isEmpty() )
+            if( stack == null )
             {
-                return ItemStack.EMPTY;
+                return null;
             }
 
-            if( stack.getCount() <= count )
+            if( stack.stackSize <= count )
             {
-                setInventorySlotContents( slot, ItemStack.EMPTY );
+                setInventorySlotContents( slot, null );
                 return stack;
             }
 
@@ -522,15 +512,15 @@ public class TileTurtle extends TileComputerBase
     }
 
     @Override
-    public void setInventorySlotContents( int i, @Nonnull ItemStack stack )
+    public void setInventorySlotContents( int i, ItemStack stack )
     {
         if( i >= 0 && i < INVENTORY_SIZE )
         {
             synchronized( m_inventory )
             {
-                if( !InventoryUtil.areItemsEqual( stack, m_inventory.get( i ) ) )
+                if( !InventoryUtil.areItemsEqual( stack, m_inventory[ i ] ) )
                 {
-                    m_inventory.set( i, stack );
+                    m_inventory[ i ] = stack;
                     onInventoryDefinitelyChanged();
                 }
             }
@@ -545,9 +535,9 @@ public class TileTurtle extends TileComputerBase
             boolean changed = false;
             for( int i = 0; i < INVENTORY_SIZE; ++i )
             {
-                if( !m_inventory.get( i ).isEmpty() )
+                if( m_inventory[i] != null )
                 {
-                    m_inventory.set( i, ItemStack.EMPTY );
+                    m_inventory[i] = null;
                     changed = true;
                 }
             }
@@ -635,7 +625,7 @@ public class TileTurtle extends TileComputerBase
             {
                 for( int n=0; n<getSizeInventory(); ++n )
                 {
-                    if( !ItemStack.areItemStacksEqual( getStackInSlot( n ), m_previousInventory.get( n ) ) )
+                    if( !ItemStack.areItemStacksEqual( getStackInSlot( n ), m_previousInventory[n] ) )
                     {
                         m_inventoryChanged = true;
                         break;
@@ -646,7 +636,7 @@ public class TileTurtle extends TileComputerBase
     }
 
     @Override
-    public boolean isUsableByPlayer( @Nonnull EntityPlayer player )
+    public boolean isUseableByPlayer( @Nonnull EntityPlayer player )
     {
         return isUsable( player, false );
     }
@@ -737,7 +727,7 @@ public class TileTurtle extends TileComputerBase
         return capability == ITEM_HANDLER_CAPABILITY ||  super.hasCapability( capability, facing );
     }
 
-    @Nullable
+    @Nonnull
     @Override
     public <T> T getCapability( @Nonnull Capability<T> capability, @Nullable EnumFacing facing )
     {

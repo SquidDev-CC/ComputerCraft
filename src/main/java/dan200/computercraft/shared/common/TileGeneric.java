@@ -34,7 +34,7 @@ public abstract class TileGeneric extends TileEntity
 
     public void requestTileEntityUpdate()
     {
-        if( getWorld().isRemote )
+        if( worldObj.isRemote )
         {
             ComputerCraftPacket packet = new ComputerCraftPacket();
             packet.m_packetType = ComputerCraftPacket.RequestTileEntityUpdate;
@@ -52,7 +52,7 @@ public abstract class TileGeneric extends TileEntity
     @Nullable
     public BlockGeneric getBlock()
     {
-        Block block = getWorld().getBlockState( getPos() ).getBlock();
+        Block block = worldObj.getBlockState( getPos() ).getBlock();
         if( block != null && block instanceof BlockGeneric )
         {
             return (BlockGeneric)block;
@@ -62,21 +62,21 @@ public abstract class TileGeneric extends TileEntity
 
     protected final IBlockState getBlockState()
     {
-        return getWorld().getBlockState( getPos() );
+        return worldObj.getBlockState( getPos() );
     }
 
     public final void updateBlock()
     {
         markDirty();
         BlockPos pos = getPos();
-        IBlockState state = getWorld().getBlockState( pos );
-        getWorld().markBlockRangeForRenderUpdate( pos, pos );
-        getWorld().notifyBlockUpdate( getPos(), state, state, 3 );
+        IBlockState state = worldObj.getBlockState( pos );
+        worldObj.markBlockRangeForRenderUpdate( pos, pos );
+        worldObj.notifyBlockUpdate( getPos(), state, state, 3 );
     }
 
     protected final void setBlockState( IBlockState newState )
     {
-        getWorld().setBlockState( getPos(), newState, 3 );
+        worldObj.setBlockState( getPos(), newState, 3 );
     }
 
     public void getDroppedItems( @Nonnull List<ItemStack> drops, boolean creative )
@@ -151,13 +151,13 @@ public abstract class TileGeneric extends TileEntity
     {
         if( player != null && player.isEntityAlive() )
         {
-            if( getWorld().getTileEntity( getPos() ) == this )
+            if( worldObj.getTileEntity( getPos() ) == this )
             {
                 if( !ignoreRange )
                 {
                     double range = getInteractRange( player );
                     BlockPos pos = getPos();
-                    return player.getEntityWorld() == getWorld() &&
+                    return player.getEntityWorld() == worldObj &&
                            player.getDistanceSq( (double)pos.getX() + 0.5, (double)pos.getY() + 0.5, (double)pos.getZ() + 0.5 ) <= ( range * range );
                 }
                 return true;
@@ -181,7 +181,7 @@ public abstract class TileGeneric extends TileEntity
 
     public final void sendBlockEvent( int eventID, int eventParameter )
     {
-        getWorld().addBlockEvent( getPos(), getWorld().getBlockState( getPos() ).getBlock(), eventID, eventParameter );
+        worldObj.addBlockEvent( getPos(), worldObj.getBlockState( getPos() ).getBlock(), eventID, eventParameter );
     }
 
     public void onBlockEvent( int eventID, int eventParameter )

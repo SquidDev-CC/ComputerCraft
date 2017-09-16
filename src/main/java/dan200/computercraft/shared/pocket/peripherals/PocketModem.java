@@ -41,7 +41,7 @@ public class PocketModem implements IPocketUpgrade
             : "upgrade.computercraft:wireless_modem.adjective";
     }
 
-    @Nonnull
+    @Nullable
     @Override
     public ItemStack getCraftingItem()
     {

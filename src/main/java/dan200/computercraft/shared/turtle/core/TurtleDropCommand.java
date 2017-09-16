@@ -12,9 +12,10 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 
@@ -47,7 +48,7 @@ public class TurtleDropCommand implements ITurtleCommand
 
         // Get things to drop
         ItemStack stack = InventoryUtil.takeItems( m_quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
-        if( stack.isEmpty() )
+        if( stack == null )
         {
             return TurtleCommandResult.failure( "No items to drop" );
         }
@@ -63,7 +64,7 @@ public class TurtleDropCommand implements ITurtleCommand
         {
             // Drop the item into the inventory
             ItemStack remainder = InventoryUtil.storeItems( stack, inventory );
-            if( !remainder.isEmpty() )
+            if( remainder != null )
             {
                 // Put the remainder back in the turtle
                 InventoryUtil.storeItems( remainder, turtle.getItemHandler(), turtle.getSelectedSlot() );

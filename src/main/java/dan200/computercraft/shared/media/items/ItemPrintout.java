@@ -15,7 +15,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -43,7 +42,7 @@ public class ItemPrintout extends Item
     }
 
     @Override
-    public void getSubItems( @Nonnull Item itemID, CreativeTabs tabs, NonNullList<ItemStack> list )
+    public void getSubItems( @Nonnull Item itemID, CreativeTabs tabs, List<ItemStack> list )
     {
         list.add( createSingleFromTitleAndText( null, new String[ LINES_PER_PAGE ], new String[ LINES_PER_PAGE ] ) );
         list.add( createMultipleFromTitleAndText( null, new String[ 2*LINES_PER_PAGE ], new String[ 2*LINES_PER_PAGE ] ) );
@@ -51,7 +50,7 @@ public class ItemPrintout extends Item
     }
 
     @Override
-    public void addInformation( @Nonnull ItemStack itemstack, EntityPlayer par2EntityPlayer, List<String> list, boolean flag )
+    public void addInformation( ItemStack itemstack, EntityPlayer par2EntityPlayer, List<String> list, boolean flag )
     {
         String title = getTitle( itemstack );
         if( title != null && title.length() > 0 )
@@ -62,7 +61,7 @@ public class ItemPrintout extends Item
 
     @Nonnull
     @Override
-    public String getUnlocalizedName( @Nonnull ItemStack stack )
+    public String getUnlocalizedName( ItemStack stack )
     {
         Type type = getType( stack );
         switch( type )
@@ -85,16 +84,15 @@ public class ItemPrintout extends Item
 
     @Nonnull
     @Override
-    public ActionResult<ItemStack> onItemRightClick( World world, EntityPlayer player, @Nonnull EnumHand hand )
+    public ActionResult<ItemStack> onItemRightClick( @Nonnull ItemStack stack, World world, EntityPlayer player, EnumHand hand )
     {
         if( !world.isRemote )
         {
             ComputerCraft.openPrintoutGUI( player, hand );
         }
-        return new ActionResult<ItemStack>( EnumActionResult.SUCCESS, player.getHeldItem( hand ) );
+        return new ActionResult<ItemStack>( EnumActionResult.SUCCESS, stack );
     }
 
-    @Nonnull
     private static ItemStack createFromTitleAndText( Type type, String title, String[] text, String[] colours )
     {
         // Calculate damage
@@ -155,25 +153,22 @@ public class ItemPrintout extends Item
         return stack;
     }
 
-    @Nonnull
     public static ItemStack createSingleFromTitleAndText( String title, String[] text, String[] colours )
     {
         return createFromTitleAndText( Type.Single, title, text, colours );
     }
 
-    @Nonnull
     public static ItemStack createMultipleFromTitleAndText( String title, String[] text, String[] colours )
     {
         return createFromTitleAndText( Type.Multiple, title, text, colours );
     }
 
-    @Nonnull
     public static ItemStack createBookFromTitleAndText( String title, String[] text, String[] colours )
     {
         return createFromTitleAndText( Type.Book, title, text, colours );
     }
 
-    public static Type getType( @Nonnull ItemStack stack )
+    public static Type getType( ItemStack stack )
     {
         int damage = stack.getItemDamage();
         switch( damage )
@@ -194,7 +189,7 @@ public class ItemPrintout extends Item
         }
     }
 
-    public static String getTitle( @Nonnull ItemStack stack )
+    public static String getTitle( ItemStack stack )
     {
         NBTTagCompound nbt = stack.getTagCompound();
         if( nbt != null && nbt.hasKey( "title" ) )
@@ -204,7 +199,7 @@ public class ItemPrintout extends Item
         return null;
     }
 
-    public static int getPageCount( @Nonnull ItemStack stack )
+    public static int getPageCount( ItemStack stack )
     {
         NBTTagCompound nbt = stack.getTagCompound();
         if( nbt != null && nbt.hasKey( "pages" ) )
@@ -214,7 +209,7 @@ public class ItemPrintout extends Item
         return 1;
     }
 
-    public static String[] getText( @Nonnull ItemStack stack )
+    public static String[] getText( ItemStack stack )
     {
         NBTTagCompound nbt = stack.getTagCompound();
         int numLines = getPageCount( stack ) * LINES_PER_PAGE;
@@ -233,7 +228,7 @@ public class ItemPrintout extends Item
         return lines;
     }
 
-    public static String[] getColours( @Nonnull ItemStack stack )
+    public static String[] getColours( ItemStack stack )
     {
         NBTTagCompound nbt = stack.getTagCompound();
         int numLines = getPageCount( stack ) * LINES_PER_PAGE;

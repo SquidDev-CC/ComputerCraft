@@ -62,8 +62,7 @@ public abstract class BlockGeneric extends Block implements
 
     @Nonnull
     @Override
-    @Deprecated
-    public final IBlockState getStateForPlacement( World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int damage, EntityLivingBase placer )
+    public final IBlockState onBlockPlaced( World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int damage, EntityLivingBase placer )
     {
         return getDefaultBlockState( damage, side );
     }
@@ -103,7 +102,7 @@ public abstract class BlockGeneric extends Block implements
         }
     }
 
-    public final void dropItem( World world, BlockPos pos, @Nonnull ItemStack stack )
+    public final void dropItem( World world, BlockPos pos, ItemStack stack )
     {
         Block.spawnAsEntity( world, pos, stack );
     }
@@ -131,11 +130,17 @@ public abstract class BlockGeneric extends Block implements
             TileGeneric generic = (TileGeneric)tile;
             return generic.getPickedItem();
         }
-        return ItemStack.EMPTY;
+        return null;
     }
 
     @Override
-    public final boolean onBlockActivated( World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
+    public final ItemStack createStackedBlock( @Nonnull IBlockState state )
+    {
+        return null;
+    }
+
+    @Override
+    public final boolean onBlockActivated( World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ )
     {
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric )
@@ -148,7 +153,7 @@ public abstract class BlockGeneric extends Block implements
 
     @Override
     @Deprecated
-    public final void neighborChanged( IBlockState state, World world, BlockPos pos, Block block, BlockPos neighorPos )
+    public final void neighborChanged( IBlockState state, World world, BlockPos pos, Block block )
     {
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric )
@@ -182,7 +187,7 @@ public abstract class BlockGeneric extends Block implements
     }
 
     @Override
-    public final boolean canBeReplacedByLeaves( @Nonnull IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos )
+    public final boolean canBeReplacedByLeaves( IBlockState state, IBlockAccess world, BlockPos pos )
     {
         return false; // Generify me if anyone ever feels the need to change this
     }
@@ -191,7 +196,7 @@ public abstract class BlockGeneric extends Block implements
     public float getExplosionResistance( World world, BlockPos pos, @Nonnull Entity exploder, Explosion explosion )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
+        if( tile != null && tile instanceof TileGeneric && tile.hasWorldObj() )
         {
             TileGeneric generic = (TileGeneric)tile;
             if( generic.isImmuneToExplosion( exploder ) )
@@ -208,7 +213,7 @@ public abstract class BlockGeneric extends Block implements
     public final AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess world, BlockPos pos )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
+        if( tile != null && tile instanceof TileGeneric && tile.hasWorldObj() )
         {
             TileGeneric generic = (TileGeneric)tile;
             return generic.getBounds();
@@ -226,10 +231,10 @@ public abstract class BlockGeneric extends Block implements
 
     @Override
     @Deprecated
-    public final AxisAlignedBB getCollisionBoundingBox( IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos )
+    public final AxisAlignedBB getCollisionBoundingBox( IBlockState state, @Nonnull World world, @Nonnull BlockPos pos )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
+        if( tile != null && tile instanceof TileGeneric && tile.hasWorldObj() )
         {
             TileGeneric generic = (TileGeneric)tile;
 
@@ -254,10 +259,10 @@ public abstract class BlockGeneric extends Block implements
 
     @Override
     @Deprecated
-    public final void addCollisionBoxToList( IBlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull AxisAlignedBB bigBox, @Nonnull List<AxisAlignedBB> list, Entity entity, boolean p_185477_7_ )
+    public final void addCollisionBoxToList( IBlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull AxisAlignedBB bigBox, @Nonnull List<AxisAlignedBB> list, Entity entity )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
+        if( tile != null && tile instanceof TileGeneric && tile.hasWorldObj() )
         {
             TileGeneric generic = (TileGeneric)tile;
 
@@ -300,7 +305,7 @@ public abstract class BlockGeneric extends Block implements
     public final int getStrongPower( IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing oppositeSide )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
+        if( tile != null && tile instanceof TileGeneric && tile.hasWorldObj() )
         {
             TileGeneric generic = (TileGeneric)tile;
             return generic.getRedstoneOutput( oppositeSide.getOpposite() );
@@ -329,7 +334,7 @@ public abstract class BlockGeneric extends Block implements
     public int getBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
+        if( tile != null && tile instanceof TileGeneric && tile.hasWorldObj() )
         {
             TileGeneric generic = (TileGeneric)tile;
             return generic.getBundledRedstoneOutput( side );

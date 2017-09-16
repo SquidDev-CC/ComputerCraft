@@ -69,7 +69,6 @@ public class TurtleCraftingTable implements ITurtleUpgrade
         return TurtleUpgradeType.Peripheral;
     }
     
-    @Nonnull
     @Override
     public ItemStack getCraftingItem()
     {
@@ -86,7 +85,7 @@ public class TurtleCraftingTable implements ITurtleUpgrade
     @Override
     public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull EnumFacing dir )
     {
-        return TurtleCommandResult.failure();
+        return null;
     }
 
     @SideOnly( Side.CLIENT )

@@ -250,9 +250,9 @@ public class TurtleAPI implements ILuaAPI
                 // getItemCount
                 int slot = parseOptionalSlotNumber( args, 0, m_turtle.getSelectedSlot() );
                 ItemStack stack = m_turtle.getInventory().getStackInSlot( slot );
-                if( !stack.isEmpty() )
+                if( stack != null )
                 {
-                    return new Object[] { stack.getCount() };
+                    return new Object[] { stack.stackSize };
                 }
                 else
                 {
@@ -264,10 +264,10 @@ public class TurtleAPI implements ILuaAPI
                 // getItemSpace
                 int slot = parseOptionalSlotNumber( args, 0, m_turtle.getSelectedSlot() );
                 ItemStack stack = m_turtle.getInventory().getStackInSlot( slot );
-                if( !stack.isEmpty() )
+                if( stack != null )
                 {
                     return new Object[] {
-                        Math.min( stack.getMaxStackSize(), 64 ) - stack.getCount()
+                        Math.min( stack.getMaxStackSize(), 64 ) - stack.stackSize
                     };
                 }
                 return new Object[] { 64 };
@@ -428,12 +428,12 @@ public class TurtleAPI implements ILuaAPI
                 // getItemDetail
                 int slot = parseOptionalSlotNumber( args, 0, m_turtle.getSelectedSlot() );
                 ItemStack stack = m_turtle.getInventory().getStackInSlot( slot );
-                if( !stack.isEmpty() )
+                if( stack != null && stack.stackSize > 0 )
                 {
                     Item item = stack.getItem();
                     String name = Item.REGISTRY.getNameForObject( item ).toString();
                     int damage = stack.getItemDamage();
-                    int count = stack.getCount();
+                    int count = stack.stackSize;
 
                     Map<Object, Object> table = new HashMap<Object, Object>();
                     table.put( "name", name );

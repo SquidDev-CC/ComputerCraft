@@ -8,7 +8,7 @@ package dan200.computercraft.shared.util;
 
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.Item;
 
 import javax.annotation.Nonnull;
 
@@ -21,9 +21,9 @@ public class CreativeTabMain extends CreativeTabs
     
     @Nonnull
     @Override
-    public ItemStack getTabIconItem()
+    public Item getTabIconItem()
     {
-        return new ItemStack( ComputerCraft.Blocks.computer );
+        return Item.getItemFromBlock( ComputerCraft.Blocks.computer );
     }
     
     @Nonnull

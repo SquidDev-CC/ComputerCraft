@@ -70,13 +70,13 @@ public class TileCommandComputer extends TileComputer
         }
 
         @Override
-        public void sendMessage( @Nonnull ITextComponent chatComponent )
+        public void addChatMessage( @Nonnull ITextComponent chatComponent )
         {
             m_outputTable.put( m_outputTable.size() + 1, chatComponent.getUnformattedText() );
         }
 
         @Override
-        public boolean canUseCommand( int level, String command )
+        public boolean canCommandSenderUseCommand( int level, String command )
         {
             return level <= 2;
         }
@@ -179,7 +179,7 @@ public class TileCommandComputer extends TileComputer
         MinecraftServer server = player.getServer();
         if( server == null || !server.isCommandBlockEnabled() )
         {
-            player.sendMessage( new TextComponentTranslation( "advMode.notEnabled" ) );
+            player.addChatMessage( new TextComponentTranslation( "advMode.notEnabled" ) );
             return false;
         }
         else if( ComputerCraft.canPlayerUseCommands( player ) && player.capabilities.isCreativeMode )
@@ -188,7 +188,7 @@ public class TileCommandComputer extends TileComputer
         }
         else
         {
-            player.sendMessage( new TextComponentTranslation( "advMode.notAllowed" ) );
+            player.addChatMessage( new TextComponentTranslation( "advMode.notAllowed" ) );
             return false;
         }
     }

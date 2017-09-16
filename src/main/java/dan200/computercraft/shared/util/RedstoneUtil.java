@@ -76,7 +76,7 @@ public class RedstoneUtil
         IBlockState neighbour = world.getBlockState( neighbourPos );
         if( neighbour.getBlock() != Blocks.AIR )
         {
-            world.neighborChanged( neighbourPos, block.getBlock(), pos );
+            world.notifyBlockOfStateChange( neighbourPos, block.getBlock() );
             if( neighbour.getBlock().isNormalCube( neighbour, world, neighbourPos ) )
             {
                 world.notifyNeighborsOfStateExcept( neighbourPos, block.getBlock(), side.getOpposite() );

@@ -12,9 +12,7 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
 
 import javax.annotation.Nonnull;
 
@@ -30,7 +28,6 @@ public class PrintoutRecipe implements IRecipe
         return 3;
     }
     
-    @Nonnull
     @Override
     public ItemStack getRecipeOutput()
     {
@@ -40,10 +37,9 @@ public class PrintoutRecipe implements IRecipe
     @Override
     public boolean matches( @Nonnull InventoryCrafting _inventory, @Nonnull World world )
     {
-        return !getCraftingResult( _inventory ).isEmpty();
+        return (getCraftingResult( _inventory ) != null);
     }
 
-    @Nonnull
     @Override
     public ItemStack getCraftingResult( @Nonnull InventoryCrafting inventory )
     {
@@ -59,7 +55,7 @@ public class PrintoutRecipe implements IRecipe
             for( int x=0; x<inventory.getWidth(); ++x )
             {
                 ItemStack stack = inventory.getStackInRowAndColumn(x, y);
-                if( !stack.isEmpty() )
+                if( stack != null )
                 {
                     Item item = stack.getItem();
                     if( item instanceof ItemPrintout && ItemPrintout.getType( stack ) != ItemPrintout.Type.Book )
@@ -93,7 +89,7 @@ public class PrintoutRecipe implements IRecipe
                     }
                     else
                     {
-                        return ItemStack.EMPTY;
+                        return null;
                     }
                 }
             }
@@ -149,18 +145,18 @@ public class PrintoutRecipe implements IRecipe
             }
         }
 
-        return ItemStack.EMPTY;
+        return null;
     }
 
     @Nonnull
     @Override
-    public NonNullList<ItemStack> getRemainingItems( @Nonnull InventoryCrafting inventoryCrafting )
+    public ItemStack[] getRemainingItems( @Nonnull InventoryCrafting inventoryCrafting )
     {
-        NonNullList<ItemStack> results = NonNullList.withSize( inventoryCrafting.getSizeInventory(), ItemStack.EMPTY );
-        for( int i = 0; i < results.size(); ++i )
+        ItemStack[] results = new ItemStack[ inventoryCrafting.getSizeInventory() ];
+        for (int i = 0; i < results.length; ++i)
         {
-            ItemStack stack = inventoryCrafting.getStackInSlot( i );
-            results.set( i, ForgeHooks.getContainerItem( stack ) );
+            ItemStack stack = inventoryCrafting.getStackInSlot(i);
+            results[i] = net.minecraftforge.common.ForgeHooks.getContainerItem(stack);
         }
         return results;
     }

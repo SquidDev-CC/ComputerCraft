@@ -11,11 +11,8 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.item.ItemStack;
 
-import javax.annotation.Nonnull;
-
 public class PocketComputerItemFactory
 {
-    @Nonnull
     public static ItemStack create( int id, String label, int colour, ComputerFamily family, IPocketUpgrade upgrade )
     {
         ItemPocketComputer computer = ComputerCraft.Items.pocketComputer;
@@ -27,6 +24,6 @@ public class PocketComputerItemFactory
                 return computer.create( id, label, colour, family, upgrade );
             }
         }
-        return ItemStack.EMPTY;
+        return null;
     }
 }

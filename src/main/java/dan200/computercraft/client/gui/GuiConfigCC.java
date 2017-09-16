@@ -41,19 +41,6 @@ public class GuiConfigCC extends GuiConfig
         }
 
         @Override
-        public boolean hasConfigGui()
-        {
-            return true;
-        }
-
-        @Override
-        public GuiScreen createConfigGui( GuiScreen parentScreen )
-        {
-            return new GuiConfigCC( parentScreen );
-        }
-
-        @Override
-        @Deprecated
         public Class<? extends GuiScreen> mainConfigGuiClass()
         {
             return GuiConfigCC.class;
@@ -66,7 +53,6 @@ public class GuiConfigCC extends GuiConfig
         }
 
         @Override
-        @Deprecated
         public RuntimeOptionGuiHandler getHandlerFor( RuntimeOptionCategoryElement runtimeOptionCategoryElement )
         {
             return null;

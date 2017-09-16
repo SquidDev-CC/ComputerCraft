@@ -55,7 +55,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
     {
         // Get thing to place
         ItemStack stack = turtle.getInventory().getStackInSlot( turtle.getSelectedSlot() );
-        if( stack.isEmpty() )
+        if( stack == null )
         {
             return TurtleCommandResult.failure( "No items to place" );
         }
@@ -112,7 +112,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
     }
 
-    public static ItemStack deploy( @Nonnull ItemStack stack, ITurtleAccess turtle, EnumFacing direction, Object[] extraArguments, String[] o_errorMessage )
+    public static ItemStack deploy( ItemStack stack, ITurtleAccess turtle, EnumFacing direction, Object[] extraArguments, String[] o_errorMessage )
     {
         // Create a fake player, and orient it appropriately
         BlockPos playerPosition = WorldUtil.moveCoords( turtle.getPosition(), direction );
@@ -204,8 +204,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         turtlePlayer.prevRotationYawHead = turtlePlayer.rotationYawHead;
     }
 
-    @Nonnull
-    private static ItemStack deployOnEntity( @Nonnull ItemStack stack, final ITurtleAccess turtle, TurtlePlayer turtlePlayer, EnumFacing direction, Object[] extraArguments, String[] o_errorMessage )
+    private static ItemStack deployOnEntity( ItemStack stack, final ITurtleAccess turtle, TurtlePlayer turtlePlayer, EnumFacing direction, Object[] extraArguments, String[] o_errorMessage )
     {
         // See if there is an entity present
         final World world = turtle.getWorld();
@@ -228,10 +227,10 @@ public class TurtlePlaceCommand implements ITurtleCommand
         ComputerCraft.setEntityDropConsumer( hitEntity, new IEntityDropConsumer()
         {
             @Override
-            public void consumeDrop( Entity entity, @Nonnull ItemStack drop )
+            public void consumeDrop( Entity entity, ItemStack drop )
             {
                 ItemStack remainder = InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() );
-                if( !remainder.isEmpty() )
+                if( remainder != null )
                 {
                     WorldUtil.dropItemStack( remainder, world, position, turtle.getDirection().getOpposite() );
                 }
@@ -240,34 +239,25 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Place on the entity
         boolean placed = false;
-        EnumActionResult cancelResult = ForgeHooks.onInteractEntityAtAction( turtlePlayer, hitEntity, hitPos, EnumHand.MAIN_HAND );
-        if( cancelResult == null )
-        {
-            cancelResult = hitEntity.applyPlayerInteraction( turtlePlayer, hitPos, EnumHand.MAIN_HAND );
-        }
-
-        if( cancelResult == EnumActionResult.SUCCESS )
+        if( !ForgeHooks.onInteractEntityAt( turtlePlayer, hitEntity, hitPos, stack, EnumHand.MAIN_HAND ) &&
+            hitEntity.applyPlayerInteraction( turtlePlayer, hitPos, stackCopy, EnumHand.MAIN_HAND ) == EnumActionResult.SUCCESS )
         {
             placed = true;
+            turtlePlayer.loadInventory( stackCopy );
         }
-        else
+        else if( !ForgeHooks.onInteractEntity( turtlePlayer, hitEntity, stack, EnumHand.MAIN_HAND ) )
         {
-            // See EntityPlayer.interactOn
-            cancelResult = ForgeHooks.onInteractEntityAction( turtlePlayer, hitEntity, EnumHand.MAIN_HAND );
-            if( cancelResult == EnumActionResult.SUCCESS )
+            // See EntityPlayer.interact
+            if( hitEntity.processInitialInteract( turtlePlayer, stackCopy, EnumHand.MAIN_HAND ) )
             {
                 placed = true;
             }
-            else if( cancelResult == null )
+            else if( hitEntity instanceof EntityLivingBase )
             {
-                if( hitEntity.processInitialInteract( turtlePlayer, EnumHand.MAIN_HAND ) )
+                placed = stackCopy.interactWithEntity( turtlePlayer, (EntityLivingBase) hitEntity, EnumHand.MAIN_HAND );
+                if( placed )
                 {
-                    placed = true;
-                }
-                else if( hitEntity instanceof EntityLivingBase )
-                {
-                    placed = stackCopy.interactWithEntity( turtlePlayer, (EntityLivingBase) hitEntity, EnumHand.MAIN_HAND );
-                    if( placed ) turtlePlayer.loadInventory( stackCopy );
+                    turtlePlayer.loadInventory( stackCopy );
                 }
             }
         }
@@ -277,21 +267,21 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Put everything we collected into the turtles inventory, then return
         ItemStack remainder = turtlePlayer.unloadInventory( turtle );
-        if( !placed && ItemStack.areItemStacksEqual( stack, remainder ) )
+        if( !placed && (remainder != null && ItemStack.areItemStacksEqual( stack, remainder )) )
         {
             return stack;
         }
-        else if( !remainder.isEmpty() )
+        else if( remainder != null && remainder.stackSize > 0 )
         {
             return remainder;
         }
         else
         {
-            return ItemStack.EMPTY;
+            return null;
         }
     }
 
-    private static boolean canDeployOnBlock( @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer player, BlockPos position, EnumFacing side, boolean allowReplaceable, String[] o_errorMessage )
+    private static boolean canDeployOnBlock( ItemStack stack, ITurtleAccess turtle, TurtlePlayer player, BlockPos position, EnumFacing side, boolean allowReplaceable, String[] o_errorMessage )
     {
         World world = turtle.getWorld();
         if( WorldUtil.isBlockInWorld( world, position ) &&
@@ -340,8 +330,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         return false;
     }
 
-    @Nonnull
-    private static ItemStack deployOnBlock( @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos position, EnumFacing side, Object[] extraArguments, boolean allowReplace, String[] o_errorMessage )
+    private static ItemStack deployOnBlock( ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos position, EnumFacing side, Object[] extraArguments, boolean allowReplace, String[] o_errorMessage )
     {
         // Check if there's something suitable to place onto
         if( !canDeployOnBlock( stack, turtle, turtlePlayer, position, side, allowReplace, o_errorMessage ) )
@@ -373,10 +362,10 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
 
         // See PlayerInteractionManager.processRightClickBlock
-        PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock( turtlePlayer, EnumHand.MAIN_HAND, position, side, new Vec3d( hitX, hitY, hitZ ) );
+        PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock( turtlePlayer, EnumHand.MAIN_HAND, stackCopy, position, side, new Vec3d( hitX, hitY, hitZ ) );
         if( !event.isCanceled() )
         {
-            if( item.onItemUseFirst( turtlePlayer, turtle.getWorld(), position, side, hitX, hitY, hitZ, EnumHand.MAIN_HAND ) == EnumActionResult.SUCCESS )
+            if( item.onItemUseFirst( stackCopy, turtlePlayer, turtle.getWorld(), position, side, hitX, hitY, hitZ, EnumHand.MAIN_HAND ) == EnumActionResult.SUCCESS )
             {
                 placed = true;
                 turtlePlayer.loadInventory( stackCopy );
@@ -389,21 +378,14 @@ public class TurtlePlaceCommand implements ITurtleCommand
             }
         }
 
-        if( !placed && (item instanceof ItemBucket || item instanceof ItemBoat || item instanceof ItemLilyPad || item instanceof ItemGlassBottle) )
+        if( !placed && (item instanceof ItemBucket || item instanceof ItemBoat || item instanceof ItemLilyPad || item instanceof ItemGlassBottle)
+            && ForgeHooks.onItemRightClick( turtlePlayer, EnumHand.MAIN_HAND, stackCopy ) )
         {
-            EnumActionResult actionResult = ForgeHooks.onItemRightClickAction( turtlePlayer, EnumHand.MAIN_HAND );
-            if( actionResult == EnumActionResult.SUCCESS )
+            ActionResult<ItemStack> result = stackCopy.useItemRightClick( turtle.getWorld(), turtlePlayer, EnumHand.MAIN_HAND );
+            if( result.getType() == EnumActionResult.SUCCESS && !ItemStack.areItemStacksEqual( stack, result.getResult() ) )
             {
                 placed = true;
-            }
-            else if( actionResult == null )
-            {
-                ActionResult<ItemStack> result = stackCopy.useItemRightClick( turtle.getWorld(), turtlePlayer, EnumHand.MAIN_HAND );
-                if( result.getType() == EnumActionResult.SUCCESS && !ItemStack.areItemStacksEqual( stack, result.getResult() ) )
-                {
-                    placed = true;
-                    turtlePlayer.loadInventory( result.getResult() );
-                }
+                turtlePlayer.loadInventory( result.getResult() );
             }
         }
 
@@ -451,17 +433,17 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Put everything we collected into the turtles inventory, then return
         ItemStack remainder = turtlePlayer.unloadInventory( turtle );
-        if( !placed && ItemStack.areItemStacksEqual( stack, remainder ) )
+        if( !placed && (remainder != null && ItemStack.areItemStacksEqual( stack, remainder )) )
         {
             return stack;
         }
-        else if( !remainder.isEmpty() )
+        else if( remainder != null && remainder.stackSize > 0 )
         {
             return remainder;
         }
         else
         {
-            return ItemStack.EMPTY;
+            return null;
         }
     }
 }

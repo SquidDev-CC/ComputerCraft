@@ -11,15 +11,12 @@ import dan200.computercraft.shared.util.Colour;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-import javax.annotation.Nonnull;
-
 public class ItemDiskExpanded extends ItemDiskLegacy
 {    
     public ItemDiskExpanded()
     {
     }
 
-    @Nonnull
     public static ItemStack createFromIDAndColour( int id, String label, int colour )
     {
         ItemStack stack = new ItemStack( ComputerCraft.Items.diskExpanded, 1, 0 );
@@ -37,7 +34,7 @@ public class ItemDiskExpanded extends ItemDiskLegacy
     }
     
     @Override    
-    public int getDiskID( @Nonnull ItemStack stack )
+    public int getDiskID( ItemStack stack )
     {
         NBTTagCompound nbt = stack.getTagCompound();
         if( nbt != null && nbt.hasKey( "diskID" ) )
@@ -48,7 +45,7 @@ public class ItemDiskExpanded extends ItemDiskLegacy
     }
 
     @Override
-    protected void setDiskID( @Nonnull ItemStack stack, int id )
+    protected void setDiskID( ItemStack stack, int id )
     {
         if( id >= 0 )
         {
@@ -63,7 +60,7 @@ public class ItemDiskExpanded extends ItemDiskLegacy
     }
 
     @Override
-    public int getColour( @Nonnull ItemStack stack )
+    public int getColour( ItemStack stack )
     {
         NBTTagCompound nbt = stack.getTagCompound();
         if( nbt != null && nbt.hasKey( "color" ) )

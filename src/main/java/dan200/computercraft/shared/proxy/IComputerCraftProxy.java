@@ -20,7 +20,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 
 public interface IComputerCraftProxy
@@ -35,7 +34,7 @@ public interface IComputerCraftProxy
     void deleteDisplayLists( int list, int range );
     Object getFixedWidthFontRenderer();
 
-    String getRecordInfo( @Nonnull ItemStack item );
+    String getRecordInfo( ItemStack item );
     void playRecord( SoundEvent record, String recordInfo, World world, BlockPos pos );
 
     Object getDiskDriveGUI( InventoryPlayer inventory, TileDiskDrive drive );
