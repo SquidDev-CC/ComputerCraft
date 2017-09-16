@@ -38,7 +38,7 @@ public class WirelessNetwork implements IPacketNetwork
 
     private WirelessNetwork()
     {
-        m_receivers = new HashSet<>();
+        m_receivers = new HashSet<IPacketReceiver>();
     }
 
     @Override

@@ -28,7 +28,7 @@ public class TurtleVisionCamera extends EntityLivingBase
     {
         super( world );
         m_turtle = turtle;
-        m_armor = new ArrayList<>();
+        m_armor = new ArrayList<ItemStack>();
         applyPos();
     }
 
@@ -60,17 +60,17 @@ public class TurtleVisionCamera extends EntityLivingBase
     private void applyPos()
     {
         Vec3d prevPos = m_turtle.getVisualPosition( 0.0f );
-        this.lastTickPosX = this.prevPosX = prevPos.x;
-        this.lastTickPosY = this.prevPosY = prevPos.y;
-        this.lastTickPosZ = this.prevPosZ = prevPos.z;
+        this.lastTickPosX = this.prevPosX = prevPos.xCoord;
+        this.lastTickPosY = this.prevPosY = prevPos.yCoord;
+        this.lastTickPosZ = this.prevPosZ = prevPos.zCoord;
         this.prevRotationPitch = 0.0f;
         this.prevRotationYaw = m_turtle.getVisualYaw( 0.0f );
         this.prevCameraPitch = 0.0f;
 
         Vec3d pos = m_turtle.getVisualPosition( 1.0f );
-        this.posX = pos.x;
-        this.posY = pos.y;
-        this.posZ = pos.z;
+        this.posX = pos.xCoord;
+        this.posY = pos.yCoord;
+        this.posZ = pos.zCoord;
         this.rotationPitch = 0.0f;
         this.rotationYaw = m_turtle.getVisualYaw( 1.0f );
         this.cameraPitch = 0.0f;

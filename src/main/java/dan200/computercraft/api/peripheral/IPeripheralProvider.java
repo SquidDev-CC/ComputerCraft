@@ -18,7 +18,6 @@ import javax.annotation.Nullable;
  *
  * @see dan200.computercraft.api.ComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)
  */
-@FunctionalInterface
 public interface IPeripheralProvider
 {
     /**

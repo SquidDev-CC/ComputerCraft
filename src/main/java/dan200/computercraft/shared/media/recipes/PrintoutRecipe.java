@@ -15,26 +15,19 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 
-public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRecipe
+public class PrintoutRecipe implements IRecipe
 {
     public PrintoutRecipe( )
     {
     }
 
     @Override
-    public boolean canFit( int x, int y )
+    public int getRecipeSize()
     {
-        return x >= 3 && y >= 3;
-    }
-
-    @Override
-    public boolean isHidden()
-    {
-        return true;
+        return 3;
     }
     
     @Nonnull

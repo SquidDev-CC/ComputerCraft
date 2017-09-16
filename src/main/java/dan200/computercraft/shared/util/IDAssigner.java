@@ -73,9 +73,14 @@ public class IDAssigner
                 {
                     isr = new InputStreamReader( in );
                 }
-                try( BufferedReader br = new BufferedReader( isr ) )
+                BufferedReader br = new BufferedReader( isr );
+                try
                 {
                     idString = br.readLine();
+                }
+                finally
+                {
+                    br.close();
                 }
             }
             catch( IOException e )

@@ -39,7 +39,7 @@ public class TurtleMultiModel implements IBakedModel
         m_rightUpgradeModel = rightUpgradeModel;
         m_rightUpgradeTransform = rightUpgradeTransform;
         m_generalQuads = null;
-        m_faceQuads = new HashMap<>();
+        m_faceQuads = new HashMap<EnumFacing, List<BakedQuad>>();
     }
 
     @Nonnull
@@ -50,7 +50,7 @@ public class TurtleMultiModel implements IBakedModel
         {
             if( !m_faceQuads.containsKey( side ) )
             {
-                ArrayList<BakedQuad> quads = new ArrayList<>();
+                ArrayList<BakedQuad> quads = new ArrayList<BakedQuad>();
                 if( m_overlayModel != null )
                 {
                     quads.addAll( m_overlayModel.getQuads( state, side, rand ) );
@@ -72,7 +72,7 @@ public class TurtleMultiModel implements IBakedModel
         {
             if( m_generalQuads == null )
             {
-                ArrayList<BakedQuad> quads = new ArrayList<>();
+                ArrayList<BakedQuad> quads = new ArrayList<BakedQuad>();
                 quads.addAll( m_baseModel.getQuads( state, side, rand ) );
                 if( m_overlayModel != null )
                 {
@@ -141,7 +141,7 @@ public class TurtleMultiModel implements IBakedModel
         }
         else
         {
-            List<BakedQuad> output = new ArrayList<>( input.size() );
+            List<BakedQuad> output = new ArrayList<BakedQuad>( input.size() );
             for( BakedQuad quad : input )
             {
                 output.add( transformQuad( quad, transform ) );

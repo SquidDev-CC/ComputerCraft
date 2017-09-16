@@ -16,7 +16,6 @@ import javax.annotation.Nullable;
  *
  * @see dan200.computercraft.api.ComputerCraftAPI#registerMediaProvider(IMediaProvider)
  */
-@FunctionalInterface
 public interface IMediaProvider
 {
     /**

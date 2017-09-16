@@ -17,7 +17,6 @@ import javax.annotation.Nonnull;
  *
  * @see dan200.computercraft.api.ComputerCraftAPI#registerBundledRedstoneProvider(IBundledRedstoneProvider)
  */
-@FunctionalInterface
 public interface IBundledRedstoneProvider
 {
     /**

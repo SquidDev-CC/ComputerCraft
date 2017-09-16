@@ -48,14 +48,14 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             assert( m_type != null );
             assert( m_methods != null );
             
-            m_methodMap = new HashMap<>();
+            m_methodMap = new HashMap<String, Integer>();
             for(int i=0; i<m_methods.length; ++i ) {
                 if( m_methods[i] != null ) {
                     m_methodMap.put( m_methods[i], i );
                 }
             }
             
-            m_mounts = new HashSet<>();
+            m_mounts = new HashSet<String>();
         }
         
         public IPeripheral getPeripheral()
@@ -451,7 +451,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 }
                 if( methods != null )
                 {
-                    Map<Object,Object> table = new HashMap<>();
+                    Map<Object,Object> table = new HashMap<Object,Object>();
                     for(int i=0; i<methods.length; ++i ) {
                         table.put( i+1, methods[i] );
                     }

@@ -16,14 +16,16 @@ import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
+
+import javax.annotation.Nonnull;
 
 public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMonitor>
 {
@@ -32,7 +34,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
     }
 
     @Override
-    public void render( TileMonitor tileEntity, double posX, double posY, double posZ, float f, int i, float f2 )
+    public void renderTileEntityAt( @Nonnull TileMonitor tileEntity, double posX, double posY, double posZ, float f, int i )
     {
         if( tileEntity != null )
         {
@@ -91,7 +93,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
             // Get renderers
             Minecraft mc = Minecraft.getMinecraft();
             Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder renderer = tessellator.getBuffer();
+            VertexBuffer renderer = tessellator.getBuffer();
 
             // Get terminal
             ClientTerminal clientTerminal = (ClientTerminal)origin.getTerminal();

@@ -11,6 +11,7 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.items.ItemTurtleBase;
+import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
 import net.minecraft.block.state.IBlockState;
@@ -89,16 +90,16 @@ public class TurtleSmartItemModel implements IBakedModel, IResourceManagerReload
             return result;
         }
     }
-    
+
+    private ItemStack m_defaultItem;
     private HashMap<TurtleModelCombination, IBakedModel> m_cachedModels;
     private ItemOverrideList m_overrides;
-    private final TurtleModelCombination m_defaultCombination;
 
     public TurtleSmartItemModel()
     {
-        m_cachedModels = new HashMap<>();
-        m_defaultCombination = new TurtleModelCombination( ComputerFamily.Normal, false, null, null, null, false );
-        m_overrides = new ItemOverrideList( new ArrayList<>() )
+        m_defaultItem = TurtleItemFactory.create( -1, null, -1, ComputerFamily.Normal, null, null, 0, null );
+        m_cachedModels = new HashMap<TurtleModelCombination, IBakedModel>();
+        m_overrides = new ItemOverrideList( new ArrayList<ItemOverride>() )
         {
             @Nonnull
             @Override
@@ -215,13 +216,6 @@ public class TurtleSmartItemModel implements IBakedModel, IResourceManagerReload
 
     private IBakedModel getDefaultModel()
     {
-        IBakedModel model = m_cachedModels.get( m_defaultCombination );
-        if( model == null )
-        {
-            model = buildModel( m_defaultCombination );
-            m_cachedModels.put( m_defaultCombination, model );
-        }
-
-        return model;
+        return m_overrides.handleItemState( this, m_defaultItem, null, null );
     }
 }

@@ -9,6 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -77,5 +78,11 @@ public class PocketModem implements IPocketUpgrade
 
             access.setLight( modem.isActive() ? 0xBA0000 : -1 );
         }
+    }
+
+    @Override
+    public boolean onRightClick( @Nonnull World world, @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral )
+    {
+        return false;
     }
 }

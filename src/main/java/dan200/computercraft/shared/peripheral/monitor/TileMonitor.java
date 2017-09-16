@@ -65,7 +65,7 @@ public class TileMonitor extends TilePeripheralBase
 
     public TileMonitor()
     {
-        m_computers = new HashSet<>();
+        m_computers = new HashSet<IComputerAccess>();
 
         m_destroyed = false;
         m_ignoreMe = false;

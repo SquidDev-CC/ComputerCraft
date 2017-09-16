@@ -239,11 +239,11 @@ public class ComputerCraft
     public static Logger log;
 
     // API users
-    private static List<IPeripheralProvider> peripheralProviders = new ArrayList<>();
-    private static List<IBundledRedstoneProvider> bundledRedstoneProviders = new ArrayList<>();
-    private static List<IMediaProvider> mediaProviders = new ArrayList<>();
-    private static List<ITurtlePermissionProvider> permissionProviders = new ArrayList<>();
-    private static final Map<String, IPocketUpgrade> pocketUpgrades = new HashMap<>();
+    private static List<IPeripheralProvider> peripheralProviders = new ArrayList<IPeripheralProvider>();
+    private static List<IBundledRedstoneProvider> bundledRedstoneProviders = new ArrayList<IBundledRedstoneProvider>();
+    private static List<IMediaProvider> mediaProviders = new ArrayList<IMediaProvider>();
+    private static List<ITurtlePermissionProvider> permissionProviders = new ArrayList<ITurtlePermissionProvider>();
+    private static final Map<String, IPocketUpgrade> pocketUpgrades = new HashMap<String, IPocketUpgrade>();
 
     // Implementation
     @Mod.Instance( value = ComputerCraft.MOD_ID )
@@ -395,6 +395,14 @@ public class ComputerCraft
     {
         proxy.init();
         turtleProxy.init();
+    }
+
+
+    @Mod.EventHandler
+    public void onMissingMappings( FMLMissingMappingsEvent event )
+    {
+        proxy.remap( event );
+        turtleProxy.remap( event );
     }
 
     @Mod.EventHandler
@@ -756,7 +764,7 @@ public class ComputerCraft
     }
 
     public static Iterable<IPocketUpgrade> getVanillaPocketUpgrades() {
-        List<IPocketUpgrade> upgrades = new ArrayList<>();
+        List<IPocketUpgrade> upgrades = new ArrayList<IPocketUpgrade>();
         for(IPocketUpgrade upgrade : pocketUpgrades.values()) {
             if(upgrade instanceof PocketModem || upgrade instanceof PocketSpeaker) {
                 upgrades.add( upgrade );
@@ -791,7 +799,7 @@ public class ComputerCraft
     public static IMount createResourceMount( Class<?> modClass, String domain, String subPath )
     {
         // Start building list of mounts
-        List<IMount> mounts = new ArrayList<>();
+        List<IMount> mounts = new ArrayList<IMount>();
         subPath = "assets/" + domain + "/" + subPath;
 
         // Mount from debug dir

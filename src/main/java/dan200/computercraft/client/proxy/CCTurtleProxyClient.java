@@ -6,6 +6,7 @@
 
 package dan200.computercraft.client.proxy;
 
+import com.google.common.base.Function;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.render.TurtleSmartItemModel;
@@ -20,6 +21,7 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.color.IItemColor;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
@@ -27,7 +29,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
@@ -48,13 +49,6 @@ public class CCTurtleProxyClient extends CCTurtleProxyCommon
     {    
         super.preInit();
 
-        // Setup client forge handlers
-        registerForgeHandlers();
-    }
-
-    @SubscribeEvent
-    public void registerModels( ModelRegistryEvent event )
-    {
         // Register item models
         ItemMeshDefinition turtleMeshDefinition = new ItemMeshDefinition()
         {
@@ -76,6 +70,9 @@ public class CCTurtleProxyClient extends CCTurtleProxyCommon
         registerItemModel( ComputerCraft.Blocks.turtle, turtleMeshDefinition, turtleModelNames );
         registerItemModel( ComputerCraft.Blocks.turtleExpanded, turtleMeshDefinition, turtleModelNames );
         registerItemModel( ComputerCraft.Blocks.turtleAdvanced, turtleMeshDefinition, turtleModelNames );
+
+        // Setup client forge handlers
+        registerForgeHandlers();
     }
 
     @Override
@@ -171,7 +168,14 @@ public class CCTurtleProxyClient extends CCTurtleProxyCommon
             IBakedModel bakedModel = model.bake(
                 model.getDefaultState(),
                 DefaultVertexFormats.ITEM,
-                location -> Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( location.toString() )
+                new Function<ResourceLocation, TextureAtlasSprite>()
+                {
+                    @Override
+                    public TextureAtlasSprite apply( ResourceLocation location )
+                    {
+                        return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( location.toString() );
+                    }
+                }
             );
             event.getModelRegistry().putObject(
                 new ModelResourceLocation( "computercraft:" + name, "inventory" ),

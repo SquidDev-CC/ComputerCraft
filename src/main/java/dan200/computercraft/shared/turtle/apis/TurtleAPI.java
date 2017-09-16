@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.turtle.apis;
 
+import com.google.common.base.Optional;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.turtle.ITurtleAccess;
@@ -20,7 +21,6 @@ import net.minecraft.item.ItemStack;
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.*;
 
@@ -149,7 +149,7 @@ public class TurtleAPI implements ILuaAPI
         String side = optString( arguments, index, null );
         if( side == null )
         {
-            return Optional.empty();
+            return Optional.absent();
         }
         else if( side.equalsIgnoreCase( "left" ) )
         {
@@ -435,7 +435,7 @@ public class TurtleAPI implements ILuaAPI
                     int damage = stack.getItemDamage();
                     int count = stack.getCount();
 
-                    Map<Object, Object> table = new HashMap<>();
+                    Map<Object, Object> table = new HashMap<Object, Object>();
                     table.put( "name", name );
                     table.put( "damage", damage );
                     table.put( "count", count );

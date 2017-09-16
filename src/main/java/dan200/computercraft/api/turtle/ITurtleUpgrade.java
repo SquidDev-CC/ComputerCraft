@@ -136,7 +136,5 @@ public interface ITurtleUpgrade
      * @param turtle Access to the turtle that the upgrade resides on.
      * @param side   Which side of the turtle (left or right) the upgrade resides on.
      */
-    default void update( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
-    {
-    }
+    void update( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side );
 }

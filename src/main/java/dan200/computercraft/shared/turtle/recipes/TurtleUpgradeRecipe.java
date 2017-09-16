@@ -13,6 +13,7 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.proxy.CCTurtleProxyCommon;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
+import dan200.computercraft.shared.util.Colour;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -20,26 +21,19 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 
-public class TurtleUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRecipe
+public class TurtleUpgradeRecipe implements IRecipe
 {
     public TurtleUpgradeRecipe()
     {
     }
 
     @Override
-    public boolean canFit( int x, int y )
+    public int getRecipeSize()
     {
-        return x >= 3 && y >= 1;
-    }
-
-    @Override
-    public boolean isHidden()
-    {
-        return true;
+        return 3;
     }
     
     @Nonnull

@@ -94,7 +94,7 @@ public class FSAPI implements ILuaAPI
                 String path = getString( args, 0 );
                 try {
                     String[] results = m_fileSystem.list( path );
-                    Map<Object,Object> table = new HashMap<>();
+                    Map<Object,Object> table = new HashMap<Object,Object>();
                     for(int i=0; i<results.length; ++i ) {
                         table.put( i+1, results[i] );
                     }
@@ -213,46 +213,39 @@ public class FSAPI implements ILuaAPI
                 String path = getString( args, 0 );
                 String mode = getString( args, 1 );
                 try {
-                    switch( mode )
-                    {
-                        case "r":
-                        {
-                            // Open the file for reading, then create a wrapper around the reader
-                            InputStream reader = m_fileSystem.openForRead( path );
-                            return new Object[] { new EncodedInputHandle( reader ) };
-                        }
-                        case "w":
-                        {
-                            // Open the file for writing, then create a wrapper around the writer
-                            OutputStream writer = m_fileSystem.openForWrite( path, false );
-                            return new Object[] { new EncodedOutputHandle( writer ) };
-                        }
-                        case "a":
-                        {
-                            // Open the file for appending, then create a wrapper around the writer
-                            OutputStream writer = m_fileSystem.openForWrite( path, true );
-                            return new Object[] { new EncodedOutputHandle( writer ) };
-                        }
-                        case "rb":
-                        {
-                            // Open the file for binary reading, then create a wrapper around the reader
-                            InputStream reader = m_fileSystem.openForRead( path );
-                            return new Object[] { new BinaryInputHandle( reader ) };
-                        }
-                        case "wb":
-                        {
-                            // Open the file for binary writing, then create a wrapper around the writer
-                            OutputStream writer = m_fileSystem.openForWrite( path, false );
-                            return new Object[] { new BinaryOutputHandle( writer ) };
-                        }
-                        case "ab":
-                        {
-                            // Open the file for binary appending, then create a wrapper around the reader
-                            OutputStream writer = m_fileSystem.openForWrite( path, true );
-                            return new Object[] { new BinaryOutputHandle( writer ) };
-                        }
-                        default:
-                            throw new LuaException( "Unsupported mode" );
+                    if( mode.equals( "r" ) ) {
+                        // Open the file for reading, then create a wrapper around the reader
+                        InputStream reader = m_fileSystem.openForRead( path );
+                        return new Object[] { new EncodedInputHandle( reader ) };
+                        
+                    } else if( mode.equals( "w" ) ) {
+                        // Open the file for writing, then create a wrapper around the writer
+                        OutputStream writer = m_fileSystem.openForWrite( path, false );
+                        return new Object[] { new EncodedOutputHandle( writer ) };
+                    
+                    } else if( mode.equals( "a" ) ) {
+                        // Open the file for appending, then create a wrapper around the writer
+                        OutputStream writer = m_fileSystem.openForWrite( path, true );
+                        return new Object[] { new EncodedOutputHandle( writer ) };
+                                            
+                    } else if( mode.equals( "rb" ) ) {
+                        // Open the file for binary reading, then create a wrapper around the reader
+                        InputStream reader = m_fileSystem.openForRead( path );
+                        return new Object[] { new BinaryInputHandle( reader ) };
+                        
+                    } else if( mode.equals( "wb" ) ) {
+                        // Open the file for binary writing, then create a wrapper around the writer
+                        OutputStream writer = m_fileSystem.openForWrite( path, false );
+                        return new Object[] { new BinaryOutputHandle( writer ) };
+                    
+                    } else if( mode.equals( "ab" ) ) {
+                        // Open the file for binary appending, then create a wrapper around the reader
+                        OutputStream writer = m_fileSystem.openForWrite( path, true );
+                        return new Object[] { new BinaryOutputHandle( writer ) };
+                        
+                    } else {
+                        throw new LuaException( "Unsupported mode" );
+                        
                     }
                 } catch( FileSystemException e ) {
                     return new Object[] { null, e.getMessage() };
@@ -293,7 +286,7 @@ public class FSAPI implements ILuaAPI
                 String path = getString( args, 0 );
                 try {
                     String[] results = m_fileSystem.find( path );
-                    Map<Object,Object> table = new HashMap<>();
+                    Map<Object,Object> table = new HashMap<Object,Object>();
                     for(int i=0; i<results.length; ++i ) {
                         table.put( i+1, results[i] );
                     }

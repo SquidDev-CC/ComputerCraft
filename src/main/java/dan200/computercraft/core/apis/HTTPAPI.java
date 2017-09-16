@@ -26,7 +26,7 @@ public class HTTPAPI implements ILuaAPI
     public HTTPAPI( IAPIEnvironment environment )
     {
         m_apiEnvironment = environment;
-        m_httpTasks = new ArrayList<>();
+        m_httpTasks = new ArrayList<HTTPTask>();
     }
     
     @Override
@@ -103,7 +103,7 @@ public class HTTPAPI implements ILuaAPI
                 Map<Object, Object> table = optTable( args, 2, null );
                 if( table != null )
                 {
-                    headers = new HashMap<>( table.size() );
+                    headers = new HashMap<String, String>( table.size() );
                     for( Object key : table.keySet() )
                     {
                         Object value = table.get( key );

@@ -337,7 +337,6 @@ public class ServerComputer extends ServerTerminal
 
     // Networking stuff
 
-    @Override
     public void writeDescription( NBTTagCompound nbttagcompound )
     {
         super.writeDescription( nbttagcompound );

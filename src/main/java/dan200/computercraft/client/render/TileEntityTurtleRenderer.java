@@ -17,9 +17,9 @@ import dan200.computercraft.shared.util.HolidayUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelManager;
@@ -40,6 +40,7 @@ import net.minecraftforge.client.model.pipeline.LightUtil;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nonnull;
 import javax.vecmath.Matrix4f;
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
     }
 
     @Override
-    public void render( TileTurtle tileEntity, double posX, double posY, double posZ, float f, int i, float f2 )
+    public void renderTileEntityAt( @Nonnull TileTurtle tileEntity, double posX, double posY, double posZ, float f, int i )
     {
         if( tileEntity != null )
         {
@@ -65,7 +66,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
             Entity viewEntity = Minecraft.getMinecraft().getRenderViewEntity();
             if( viewEntity != null && viewEntity instanceof TurtleVisionCamera )
             {
-                TurtleVisionCamera camera = (TurtleVisionCamera) viewEntity;
+                TurtleVisionCamera camera = (TurtleVisionCamera)viewEntity;
                 if( camera.getTurtle() == tileEntity.getAccess() )
                 {
                     return;
@@ -126,7 +127,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
                 offset = new Vec3d( 0.0, 0.0, 0.0 );
                 yaw = 0.0f;
             }
-            GlStateManager.translate( posX + offset.x, posY + offset.y, posZ + offset.z );
+            GlStateManager.translate( posX + offset.xCoord, posY + offset.yCoord, posZ + offset.zCoord );
 
             // Render the label
             IComputer computer = (turtle != null) ? turtle.getComputer() : null;
@@ -249,7 +250,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
 
     private void renderQuads( Tessellator tessellator, List<BakedQuad> quads, int[] tints )
     {
-        BufferBuilder buffer = tessellator.getBuffer();
+        VertexBuffer buffer = tessellator.getBuffer();
         VertexFormat format = DefaultVertexFormats.ITEM;
         buffer.begin( GL11.GL_QUADS, format );
         for (BakedQuad quad : quads)
@@ -308,7 +309,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
                     try
                     {
                         Tessellator tessellator = Tessellator.getInstance();
-                        BufferBuilder renderer = tessellator.getBuffer();
+                        VertexBuffer renderer = tessellator.getBuffer();
                         renderer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR );
                         renderer.pos( (double) ( -xOffset - 1 ), (double) ( -1 + yOffset ), 0.0D ).color( 0.0F, 0.0F, 0.0F, 0.25F ).endVertex();
                         renderer.pos( (double) ( -xOffset - 1 ), (double) ( 8 + yOffset ), 0.0D ).color( 0.0F, 0.0F, 0.0F, 0.25F ).endVertex();

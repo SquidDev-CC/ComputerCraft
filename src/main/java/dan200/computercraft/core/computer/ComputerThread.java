@@ -31,9 +31,9 @@ public class ComputerThread
     {
         m_lock = new Object();    
         m_thread = null;
-        m_computerTasks = new WeakHashMap<>();
-        m_computerTasksPending = new ArrayList<>();
-        m_computerTasksActive = new ArrayList<>();
+        m_computerTasks = new WeakHashMap<Object, LinkedBlockingQueue<ITask>>();
+        m_computerTasksPending = new ArrayList<LinkedBlockingQueue<ITask>>();
+        m_computerTasksActive = new ArrayList<LinkedBlockingQueue<ITask>>();
         m_defaultQueue = new Object();
         m_monitor = new Object();
         m_running = false;
@@ -50,123 +50,126 @@ public class ComputerThread
                 return;
             }
         
-            m_thread = new Thread( () ->
-            {
-                while( true )
+            m_thread = new Thread( new Runnable() {
+                public void run()
                 {
-                    synchronized( m_computerTasksPending )
+                    while( true )
                     {
-                        if (!m_computerTasksPending.isEmpty())
+                        synchronized( m_computerTasksPending )
                         {
-                            Iterator<LinkedBlockingQueue<ITask>> it = m_computerTasksPending.iterator();
-                            while(it.hasNext())
+                            if (!m_computerTasksPending.isEmpty())
                             {
-                                LinkedBlockingQueue<ITask> queue = it.next();
-                                
-                                if (!m_computerTasksActive.contains(queue))
+                                Iterator<LinkedBlockingQueue<ITask>> it = m_computerTasksPending.iterator();
+                                while(it.hasNext())
                                 {
-                                    m_computerTasksActive.add(queue);
-                                }
-                                it.remove();
-                            }
-                            /*
-                            m_computerTasksActive.addAll(m_computerTasksPending); // put any that have been added since
-                            m_computerTasksPending.clear();
-                            */
-                        }
-                    }
-                    
-                    Iterator<LinkedBlockingQueue<ITask>> it = m_computerTasksActive.iterator();
-                    
-                    while (it.hasNext())
-                    {
-                        LinkedBlockingQueue<ITask> queue = it.next();
-                        
-                        if (queue == null || queue.isEmpty()) // we don't need the blocking part of the queue. Null check to ensure it exists due to a weird NPE I got
-                        {
-                            continue;
-                        }
-                        
-                        synchronized( m_lock )
-                        {
-                            if( m_stopped )
-                            {
-                                m_running = false;
-                                m_thread = null;
-                                return;
-                            }
-                        }
-                        
-                        try
-                        {
-                            final ITask task = queue.take();
-
-                            // Create the task
-                            Thread worker = new Thread( () ->
-                            {
-                                try {
-                                    task.execute();
-                                } catch( Throwable e ) {
-                                    ComputerCraft.log.error( "Error running task", e );
-                                }
-                            } );
-                            
-                            // Run the task
-                            worker.setDaemon(true);
-                            worker.start();
-                            worker.join( 7000 );
-                            
-                            if( worker.isAlive() )
-                            {
-                                // Task ran for too long
-                                // Initiate escape plan
-                                Computer computer = task.getOwner();
-                                if( computer != null )
-                                {
-                                    // Step 1: Soft abort
-                                    computer.abort( false );
-                                    worker.join( 1500 );
-                            
-                                    if( worker.isAlive() )
+                                    LinkedBlockingQueue<ITask> queue = it.next();
+                                    
+                                    if (!m_computerTasksActive.contains(queue))
                                     {
-                                        // Step 2: Hard abort
-                                        computer.abort( true );
-                                        worker.join( 1500 );
+                                        m_computerTasksActive.add(queue);
                                     }
+                                    it.remove();
                                 }
+                                /*
+                                m_computerTasksActive.addAll(m_computerTasksPending); // put any that have been added since
+                                m_computerTasksPending.clear();
+                                */
+                            }
+                        }
+                        
+                        Iterator<LinkedBlockingQueue<ITask>> it = m_computerTasksActive.iterator();
+                        
+                        while (it.hasNext())
+                        {
+                            LinkedBlockingQueue<ITask> queue = it.next();
+                            
+                            if (queue == null || queue.isEmpty()) // we don't need the blocking part of the queue. Null check to ensure it exists due to a weird NPE I got
+                            {
+                                continue;
+                            }
+                            
+                            synchronized( m_lock )
+                            {
+                                if( m_stopped )
+                                {
+                                    m_running = false;
+                                    m_thread = null;
+                                    return;
+                                }
+                            }
+                            
+                            try
+                            {
+                                final ITask task = queue.take();
+
+                                // Create the task
+                                Thread worker = new Thread( new Runnable() {
+                                    public void run() {
+                                        try {
+                                            task.execute();
+                                        } catch( Throwable e ) {
+                                            ComputerCraft.log.error( "Error running task", e );
+                                        }
+                                    }
+                                } );
                                 
-                                // Step 3: abandon
+                                // Run the task
+                                worker.setDaemon(true);
+                                worker.start();
+                                worker.join( 7000 );
+                                
                                 if( worker.isAlive() )
                                 {
-                                    // ComputerCraft.log.warn( "Failed to abort Computer " + computer.getID() + ". Dangling lua thread could cause errors." );
-                                    worker.interrupt();
-                                }
-                            }                
-                        }
-                        catch( InterruptedException e )
-                        {
-                            continue;
-                        }
-
-                        synchronized (queue)
-                        {
-                            if (queue.isEmpty())
-                            {
-                                it.remove();
-                            }
-                        }
-                    }
-                    
-                    while (m_computerTasksActive.isEmpty() && m_computerTasksPending.isEmpty())
-                    {
-                        synchronized (m_monitor)
-                        {
-                            try 
-                            {
-                                m_monitor.wait();
+                                    // Task ran for too long
+                                    // Initiate escape plan
+                                    Computer computer = task.getOwner();
+                                    if( computer != null )
+                                    {
+                                        // Step 1: Soft abort
+                                        computer.abort( false );
+                                        worker.join( 1500 );
+                                
+                                        if( worker.isAlive() )
+                                        {
+                                            // Step 2: Hard abort
+                                            computer.abort( true );
+                                            worker.join( 1500 );
+                                        }
+                                    }
+                                    
+                                    // Step 3: abandon
+                                    if( worker.isAlive() )
+                                    {
+                                        // ComputerCraft.log.warn( "Failed to abort Computer " + computer.getID() + ". Dangling lua thread could cause errors." );
+                                        worker.interrupt();
+                                    }
+                                }                
                             }
                             catch( InterruptedException e )
                             {
+                                continue;
+                            }
+
+                            synchronized (queue)
+                            {
+                                if (queue.isEmpty())
+                                {
+                                    it.remove();
+                                }
+                            }
+                        }
+                        
+                        while (m_computerTasksActive.isEmpty() && m_computerTasksPending.isEmpty())
+                        {
+                            synchronized (m_monitor)
+                            {
+                                try 
+                                {
+                                    m_monitor.wait();
+                                }
+                                catch( InterruptedException e )
+                                {
+                                }
                             }
                         }
                     }
@@ -204,7 +207,7 @@ public class ComputerThread
 
         if (queue == null)
         {
-            m_computerTasks.put(queueObject, queue = new LinkedBlockingQueue<>( 256 ));
+            m_computerTasks.put(queueObject, queue = new LinkedBlockingQueue<ITask>(256));
         }
         
         synchronized ( m_computerTasksPending )

@@ -118,4 +118,9 @@ public class TurtleCraftingTable implements ITurtleUpgrade
             return Pair.of( modelManager.getModel( m_rightModel ), transform );
         }
     }
+
+    @Override
+    public void update( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
+    {
+    }
 }
