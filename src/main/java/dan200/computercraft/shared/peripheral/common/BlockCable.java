@@ -12,7 +12,6 @@ import dan200.computercraft.shared.peripheral.modem.TileCable;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
@@ -265,13 +264,5 @@ public class BlockCable extends BlockPeripheralBase
     public final boolean isFullCube( IBlockState state )
     {
         return false;
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public BlockFaceShape getBlockFaceShape( IBlockAccess world, IBlockState state, BlockPos pos, EnumFacing side )
-    {
-        return BlockFaceShape.UNDEFINED;
     }
 }
