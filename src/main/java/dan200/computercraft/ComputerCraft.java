@@ -774,7 +774,7 @@ public class ComputerCraft
         return upgrades;
     }
 
-    public IPacketNetwork getWirelessNetwork()
+    public static IPacketNetwork getWirelessNetwork()
     {
         return WirelessNetwork.getUniversal();
     }
